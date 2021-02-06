@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <exception>
 #include <unordered_map>
+#include "ConsoleApplication1.h"
 
 using namespace::std;
 
@@ -43,10 +44,10 @@ bool get(Grid& grid, int x, int y)
     return it->second;
 }
 
-bool put(Grid& grid, int x, int y)
+bool put(Grid& grid, int x, int y, bool it)
 {
-    bool it;
-    grid.emplace(IntVector2(x, y)) = it;
+    //bool it;
+    grid.emplace(IntVector2(x, y), it);
     //if (it == grid.end())
         //return 0;
 
@@ -58,19 +59,27 @@ int main()
 {
     cout << "Hello World!\n";
 
-    Grid Lig;
-    int d = get(Lig, 4, 6);
-    put(Lig, 5, 6);
+    //Grid Lig;
+    //int d = get(Lig, 4, 6);
+    //put(Lig, 5, 6, true); //тест работает ли
     
 
     float n = 0.95;
 
+
+
+    for (int i = 0; i < lenX; i++) {
+        cout << " \n";
+        for (int j = 0; j < lenX; j++) {
+            cout << get(Lig, i, j) + " ";
+        }
+
+    }
+
 }
 
-int generate_field(float n, Grid& grid)
+Grid& generate_field(float n, Grid& grid) //было int вместо Grid& (magic  @_@ )
 {
-    //float T[lenX][lenX];
-
     // Set Boundary condition for lighthing
     int Ttop = 45;  // 100
     int Tbottom = 0; // 0
@@ -79,22 +88,22 @@ int generate_field(float n, Grid& grid)
     int Tguess = 5; //30
 
 
-    //создаю массив, в конце выполнения функции он удалится
+                    //создаю массив, в конце выполнения функции он удалится
     auto T = new float* [lenX];
     for (int i = 1; i < lenX - 1; i++)
     {
         T[i] = new float[lenX];
         for (int j = 1; j < lenX - 1; j++)
         {
-            T[i][j] = i/(2*j) + pow(2, j);
+            T[i][j] = i / (2 * j) + pow(2, j);
             //T[i][j] = 0.25 * (T[i + 1][j] + T[i - 1][j] + T[i][j + 1] + T[i][j - 1]);
         }
     }
-
+    
 
     Grid Lig;
 
-    int d = get(Lig, 4, 6);
+    //int d = get(Lig, 4, 6);  //test
 
 
     for (int k = 2; k < lenX - 2; k++)
@@ -102,45 +111,50 @@ int generate_field(float n, Grid& grid)
         for (int l = 2; l < lenX - 2; l++)
         {
             float Z = (T[k - 1][l] + T[k + 1][l] + T[k][l - 1] + T[k][l + 1]);
-            // определяю для x + 1
-            if (random_decision(k + 1, l, Z, n, *T[k + 1][l])) {
-                
+
+            // определяю для x + 1 
+            //комменью пока else т к д быть false, если не задано иное
+            if (random_decision(k + 1, l, Z, n, T[k + 1][l])) { //&T[k + 1][l] почему надо так, а не : *T[k + 1][l]
+
                 if ((get(Lig, k, l) == 1) or (get(Lig, k + 1, l - 1) == 1) or (get(Lig, k + 1, l + 1) == 1) or (get(Lig, k + 2, l) == 1)) {
 
-                    put(Lig, k + 1, l)= 1;
+                    put(Lig, k + 1, l, true);
                 }
-                else {
+                /*else {
                     get(Lig, k + 1, l) = 0;
                 }
             }
-            else {
-                Lig[k + 1][l] = 0;
+            else { 
+                Lig[k + 1][l] = 0; */
             }
+
 
             // определяю для x - 1
-            if (random_decision(k - 1, l, Z, n)) {
-                if ((get(Lig, k][l] == 1) or (get(Lig, k - 1][l - 1] == 1) or (get(Lig, k - 1][l + 1] == 1) or (get(Lig, k - 2][l] == 1)) {
-                    get(Lig, k - 1][l] = 1;
+            if (random_decision(k - 1, l, Z, n, T[k - 1][l])) {
+                if ((get(Lig, k, l) == 1) or (get(Lig, k - 1, l - 1) == 1) or (get(Lig, k - 1, l + 1) == 1) or (get(Lig, k - 2, l) == 1)) {
+                    put(Lig, k - 1, l, true);
+                }
+                /*else {
+                get(Lig, k - 1][l] = 0;
+                }
                 }
                 else {
-                    get(Lig, k - 1][l] = 0;
-                }
-            }
-            else {
                 get(Lig, k - 1][l] = 0;
+                */
             }
 
-                // определяю для y + 1 # (get(Lig, k - 1, l] == 0) & (get(Lig, k + 1, l] == 0) |
-            if (random_decision(k, l + 1, Z, n)) {
-                if ((get(Lig, k][l] == 1) or (get(Lig, k - 1][l + 1] == 1) or (get(Lig, k][l + 2] == 1) or (get(Lig, k + 1][l + 1] == 1)){
-                    get(Lig, k][l + 1] = 1;
+            // определяю для y + 1 # (get(Lig, k - 1, l] == 0) & (get(Lig, k + 1, l] == 0) |
+            if (random_decision(k, l + 1, Z, n, T[k][l + 1])) {
+                if ((get(Lig, k, l) == 1) or (get(Lig, k - 1, l + 1) == 1) or (get(Lig, k, l + 2) == 1) or (get(Lig, k + 1, l + 1) == 1)) {
+                    put(Lig, k, l + 1, true);
+                }
+                /*else {
+                get(Lig, k][l + 1] = 0;
+                }
                 }
                 else {
-                    get(Lig, k][l + 1] = 0;
-                }
-            }
-            else {
                 get(Lig, k][l + 1] = 1;
+                */
             }
         }
     }
@@ -153,13 +167,17 @@ int generate_field(float n, Grid& grid)
     delete T;
 
     return Lig;
-    
+
 }
 
-bool random_decision(int k, int l, float Z, float n, float *T)
+
+bool random_decision(int k, int l, float Z, float n, float &T) //float &T[k][l]
 {
+    T->T[k][l];
+
+
     float psi = Z * rand();
-    float Z1 = pow((*T[k - 1][l] + *T[k + 1][l] + *T[k][l - 1] + *T[k][l + 1]), n);
+    float Z1 = pow((*T[k - 1][l] + *T[k + 1][l]  + *T[k][l - 1] + *T[k][l + 1]), n);
 
     return Z1 > psi;
 }

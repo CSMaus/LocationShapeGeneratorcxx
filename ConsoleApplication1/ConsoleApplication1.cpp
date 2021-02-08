@@ -2,13 +2,19 @@
 //
 
 #include <iostream>
-#include <vector>
-#include <functional>
-#include <queue>
 #include <unordered_set>
 #include <exception>
 #include <unordered_map>
 //#include "ConsoleApplication1.h"
+
+unsigned PRNG()
+{
+    static unsigned seed = 1; // зерно не должно быть 0
+    seed = (seed * 73129 + 95121) % 100000;
+    return seed;
+}
+
+
 
 using namespace::std;
 
@@ -47,6 +53,7 @@ bool get(Grid& grid, int x, int y)
 bool put(Grid& grid, int x, int y, bool it)
 {
     //bool it;
+    grid.end();
     grid.emplace(IntVector2(x, y), it);
     //if (it == grid.end())
         //return 0;
@@ -54,18 +61,24 @@ bool put(Grid& grid, int x, int y, bool it)
     //return it->second;
 }
 
+
 bool random_decision(float Z, float n, float z1) //float &T[k][l]
 {
 
-    float psi = Z * rand();
+    float psi = PRNG() * Z;
     float Z1 = pow(z1, n);
     //float Z1 = pow((get(T, k - 1, l) + get(T, k + 1, l) + get(T, k, l - 1) + get(T, k, l + 1)), n);
     //float Z1 = pow((*T[k - 1][l] + *T[k + 1][l]  + *T[k][l - 1] + *T[k][l + 1]), n);
+    if (Z1 > psi)
+        return true;
+    else
+        return false;
 
-    return Z1 > psi;
+
+    //return Z1 > psi;
 }
 
-Grid* generate_field(float n, Grid& grid) //было int вместо Grid& (magic  @_@ )
+Grid& generate_field(float n, Grid& grid) //было int вместо Grid& (magic  @_@ )
 {
     Grid Lig;
 
@@ -85,7 +98,7 @@ Grid* generate_field(float n, Grid& grid) //было int вместо Grid& (mag
         for (int j = 1; j < lenX - 1; j++)
         {
             //put(T, i, j, i / (2 * j) + pow(2, j));
-            T[i][j] = i / (2 * j) + pow(2, j);
+            T[i][j] = i / (static_cast<float>(2) * j) + pow(2, j);
             //T[i][j] = 0.25 * (T[i + 1][j] + T[i - 1][j] + T[i][j + 1] + T[i][j - 1]);
         }
     }
@@ -103,8 +116,7 @@ Grid* generate_field(float n, Grid& grid) //было int вместо Grid& (mag
             int k = i + 1, l = j;
             float z1 = T[k - 1][l] + T[k + 1][l] + T[k][l - 1] + T[k][l + 1];
             if (random_decision(Z, n, z1)) { //&T[k + 1][l] почему надо так, а не : *T[k + 1][l]
-
-                if ((get(Lig, i, j) == 1) or (get(Lig, i + 1, j - 1) == 1) or (get(Lig, i + 1, j + 1) == 1) or (get(Lig, i + 2, j) == 1)) {
+                if ((get(Lig, i, j) == true) or (get(Lig, i + 1, j - 1) == true) or (get(Lig, i + 1, j + 1) == true) or (get(Lig, i + 2, j) == true)) {
 
                     put(Lig, i + 1, j, true);
                 }
@@ -121,7 +133,7 @@ Grid* generate_field(float n, Grid& grid) //было int вместо Grid& (mag
             k = i - 1, l = j;
             z1 = T[k - 1][l] + T[k + 1][l] + T[k][l - 1] + T[k][l + 1];
             if (random_decision(Z, n, z1)) {
-                if ((get(Lig, i, j) == 1) or (get(Lig, i - 1, j - 1) == 1) or (get(Lig, i - 1, j + 1) == 1) or (get(Lig, i - 2, j) == 1)) {
+                if ((get(Lig, i, j) == true) or (get(Lig, i - 1, j - 1) == true) or (get(Lig, i - 1, j + 1) == true) or (get(Lig, i - 2, j) == true)) {
                     put(Lig, i - 1, j, true);
                 }
                 /*else {
@@ -137,7 +149,7 @@ Grid* generate_field(float n, Grid& grid) //было int вместо Grid& (mag
             k = i, l = j + 1;
             z1 = T[k - 1][l] + T[k + 1][l] + T[k][l - 1] + T[k][l + 1];
             if (random_decision(Z, n, z1)) {
-                if ((get(Lig, i, j) == 1) or (get(Lig, i - 1, j + 1) == 1) or (get(Lig, i, j + 2) == 1) or (get(Lig, i + 1, j + 1) == 1)) {
+                if ((get(Lig, i, j) == true) or (get(Lig, i - 1, j + 1) == true) or (get(Lig, i, j + 2) == true) or (get(Lig, i + 1, j + 1) == true)) {
                     put(Lig, i, j + 1, true);
                 }
                 /*else {
@@ -152,13 +164,13 @@ Grid* generate_field(float n, Grid& grid) //было int вместо Grid& (mag
     }
 
     //удаляю массив - очищаю память
-    /*for (size_t i = 0; i <= lenX; i++)
+    for (size_t i = 0; i <= lenX; i++)
     {
         delete T[i];
     }
-    delete T;*/
+    delete T;
 
-    //return Lig;
+    return Lig;
 }
 
 
@@ -168,7 +180,18 @@ int main()
     float n = 0.95;
 
     Grid Lig;
-    Lig = *generate_field(n, Lig);
+    
+    put(Lig, 0, 0, true);
+    put(Lig, 1, 0, true);
+    put(Lig, 2, 0, true);
+    put(Lig, 3, 0, true);
+
+    put(Lig, 0, lenX, true);
+    put(Lig, 1, lenX, true);
+    put(Lig, 2, lenX, true);
+    put(Lig, 3, lenX, true);
+
+    Lig = generate_field(n, Lig);
     //int d = get(Lig, 4, 6);
     //put(Lig, 5, 6, true); //тест работает ли
 
@@ -178,9 +201,7 @@ int main()
         for (int j = 0; j < lenX; j++) {
             cout << get(Lig, i, j) + " ";
         }
-
     }
-
 }
 
 

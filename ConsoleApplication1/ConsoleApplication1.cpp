@@ -11,7 +11,7 @@ using namespace::std;
 
 //const unsigned int lenX = 3;
 int const lenX = 15;
-float n = 0.08;
+float n = 1.03;
 
 
 double random(double min, double max)
@@ -50,55 +50,48 @@ template<> struct std::hash<IntVector2> {
 
 typedef std::unordered_map<IntVector2, int> Grid;
 
+//берём значение по координатам
 bool get(Grid& grid, int x, int y)
 {
     auto it = grid.find(IntVector2(x, y));
     if (it == grid.end())
         return false;
-    else
-        return true;
 
+    //возвращаем то, что положили
     return it->second;
 }
 
+//кладём значение по кординатам
 bool put(Grid& grid, int x, int y, bool it)
 {
+    if (!it)
+    {
+        int r = 6;
+    }
     grid.emplace(IntVector2(x, y), it);
     return 0;
 }
 
+//сравниваем 
 bool random_decision(int k, int l, float Z, float n, float **T) //float &T[k][l]
 {
     float r = random(0, 1);
     float psi = r * Z;
     float Z1 = pow((T[k - 1][l] + T[k + 1][l] + T[k][l - 1] + T[k][l + 1]), n);
-
     //float Z1 = pow(z1, n); 
     //float Z1 = pow((get(T, k - 1, l) + get(T, k + 1, l) + get(T, k, l - 1) + get(T, k, l + 1)), n);
-   /* if (Z1 > Z)
-        return true;
-    else
-        return false;*/
 
     return Z1 > psi;
 }
 
 
+//генератор поля (работает неверно)
 void generate_field(float n, Grid& varLig) //было int вместо Grid& (magic  @_@ )
 {
-    //Grid Lig;
-
-    // Set Boundary condition for lighthing
-    int Ttop = 45;  // 100
-    int Tbottom = 0; // 0
-    int Tleft = 15;  // 0
-    int Tright = 15;  // 30
-    int Tguess = 5; //30
-
     //создаю массив, в конце выполнения функции он удалится
-    
     auto T = new float*[lenX];
-    //Grid T;
+
+    //записываю в потенциальное (температурное) поле нули
     for (int i = 0; i < lenX; i++)
     {
         T[i] = new float[lenX];
@@ -108,70 +101,67 @@ void generate_field(float n, Grid& varLig) //было int вместо Grid& (ma
         }
     }
 
+    //рассчитываю градиент поля
     for (int i = 1; i < lenX - 1; i++)
     {
-        cout << "\n";
         for (int j = 1; j < lenX - 1; j++)
         {
             T[i][j] = (i + 1) / ((float)(2) * (j + 1)) + pow(2, j);
             //T[i][j] = 0.25 * (T[i + 1][j] + T[i - 1][j] + T[i][j + 1] + T[i][j - 1]);
-
-            printf(" %f", T[i][j]);
         }
     }
-
 
     for (int i = 2; i < lenX - 2; i++)
     {
         for (int j = 2; j < lenX - 2; j++)
         {
             float Z = (T[i - 1][j] + T[i + 1][j] + T[i][j - 1] + T[i][j + 1]);
-            //float Z = (get(T, i - 1, j) + get(T, i + 1, j) + get(T, i, j - 1) + get(T, i, j + 1));
-            // определяю для x + 1 
-            //комменьтю пока else т к д быть false, если не задано иное
 
-            if (random_decision(i + 1, j, Z, n, T)) {
-                if ((get(varLig, i, j) == true) or (get(varLig, i + 1, j - 1) == true) or (get(varLig, i + 1, j + 1) == true) or (get(varLig, i + 2, j) == true)) {
+            
+            //__________________НАЧИНАЕТСЯ КОД С КОСЯКАМИ ДЛЯ ЗАДАНИЯ ПОЛЯ Lig_________________________________________________
 
-                    put(varLig, i + 1, j, true);
-                }
+            bool r_ip1 = random_decision(i + 1, j, Z, n, T) & (get(varLig, i, j) or get(varLig, i + 1, j - 1) or get(varLig, i + 1, j + 1) or get(varLig, i + 2, j));
+            bool r_im1 = random_decision(i - 1, j, Z, n, T) & (get(varLig, i, j) or get(varLig, i - 1, j - 1) or get(varLig, i - 1, j + 1) or get(varLig, i - 2, j));
+            bool r_jp1 = random_decision(i, j + 1, Z, n, T) & (get(varLig, i, j) or get(varLig, i - 1, j + 1) or get(varLig, i, j + 2) or get(varLig, i + 1, j + 1));
+
+            if (r_ip1) {
+                put(varLig, i + 1, j, true);
+                /*}
                 else {
                     put(varLig, i + 1, j, false);
-                }
+                }*/
             }
-            else { 
+            if (!r_ip1) {
                 put(varLig, i + 1, j, false);
             }
 
             // определяю для x - 1
-            if (random_decision(i - 1, j, Z, n, T)) {
-                if ((get(varLig, i, j) == true) or (get(varLig, i - 1, j - 1) == true) or (get(varLig, i - 1, j + 1) == true) or (get(varLig, i - 2, j) == true)) {
-                    put(varLig, i - 1, j, true);
-                }
+            if (r_im1) {
+                //if (get(varLig, i, j) or get(varLig, i - 1, j - 1) or get(varLig, i - 1, j + 1) or get(varLig, i - 2, j)) {
+                put(varLig, i - 1, j, true);
+                /*}
                 else {
                     put(varLig, i - 1, j, false);
-                }
-                }
-                else {
-                    put(varLig, i - 1, j, false);
-                
+                }*/
+            }
+            if (!r_im1) {
+                put(varLig, i - 1, j, false);
             }
 
             // определяю для y + 1 # (get(Lig, k - 1, l] == 0) & (get(Lig, k + 1, l] == 0) |
-            if (random_decision(i, j + 1, Z, n, T)) {
-                if ((get(varLig, i, j) == true) or (get(varLig, i - 1, j + 1) == true) or (get(varLig, i, j + 2) == true) or (get(varLig, i + 1, j + 1) == true)) {
-                    put(varLig, i, j + 1, true);
-                }
+            if (r_jp1) {
+                put(varLig, i, j + 1, true);
+                /*}
                 else {
                     put(varLig, i, j + 1, false);
-                }
-                }
-                else {
-                    put(varLig, i, j + 1, false);
-                
+                }*/
+            }
+            if (!r_jp1) {
+                put(varLig, i, j + 1, false);
             }
         }
     }
+    
 
     //удаляю массив - очищаю память
     /*for (size_t i = 0; i <= lenX; i++)
@@ -184,46 +174,46 @@ void generate_field(float n, Grid& varLig) //было int вместо Grid& (ma
 
 int main()
 {
-    cout << "Hello World!\n";
-    
-
     Grid Lig;
 
-    int nn = 4;
-    int r = round(random(3, 6));
-    int rand = round(random(1, 3));
-    int ri = round(random(0, 2));
-    int rj = round(random(0, 2));
-    for (int i = 0; i < nn; i++) {
-        for (int j = 0; j < nn; j++) {
-            //int a = round(ri * (lenX - nn) + i);
-            //int b = round((lenX / r) * (r - rand));
-            put(Lig, round(ri * (lenX - nn) + i), round((lenX / r) * (r - rand)), true);
-                // Lig[ri * (lenX - i) + i, int(lenY / r) * (r - rand)] = 1
-            put(Lig, round((lenX / r) * (r - rand)), round(rj * (lenX - nn) + j), true);
-        }
+    //int nn = 4;
+    //int r = round(random(3, 6));
+    //int rand = round(random(1, 3));
+    //int ri = round(random(0, 2));
+    //int rj = round(random(0, 2));
+    //for (int i = 0; i < nn; i++) {
+    //    for (int j = 0; j < nn; j++) {
+    //        int a = round(ri * (lenX - nn) + i);
+    //        int b = round((lenX / r) * (r - rand));
+    //        //(lenX / r) * (r - rand)
+    //        //(lenX / r) * (r - rand)
+    //        put(Lig, a, j, true);
+    //            // Lig[ri * (lenX - i) + i, int(lenY / r) * (r - rand)] = 1
+    //        put(Lig, i, rj * (lenX - nn) + j, true);
+    //    }
+    //}
+
+    //int(lenX / 2)
+    put(Lig, 0, 2, true);
+    put(Lig, 1, 2, true);
+    put(Lig, 2, 2, true);
+    put(Lig, 3, 2, true);
+
+    put(Lig, lenX - 2, 0, true);
+    put(Lig, lenX - 2, 1, true);
+    put(Lig, lenX - 2, 2, true);
+    put(Lig, lenX - 2, 3, true);
+
+    put(Lig, lenX, lenX - 2, true);
+    put(Lig, lenX - 1, lenX - 2, true);
+    put(Lig, lenX - 2, lenX - 2, true);
+    put(Lig, lenX - 3, lenX - 2, true);
+
+    int numIter = 25;
+    for (int i = 0; i < numIter; i++) 
+    {
+        generate_field(n, Lig);
     }
-
-
-
-
-
-
-    put(Lig, 0, 0, true);
-    put(Lig, 1, 0, true);
-    put(Lig, 2, 0, true);
-    put(Lig, 3, 0, false);
-
-    put(Lig, 0, lenX, true);
-    put(Lig, 1, lenX, true);
-    put(Lig, 2, lenX, true);
-    put(Lig, 3, lenX, false);
-
-
-    generate_field(n, Lig);
-    //int d = get(Lig, 4, 6);
-    //put(Lig, 5, 6, true); //тест работает ли
-
 
     for (int i = 0; i < lenX; i++) {
         cout << " \n";

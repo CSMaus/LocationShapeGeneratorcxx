@@ -6,18 +6,33 @@
 #include <exception>
 #include <unordered_map>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h> // для функции time()
 
 using namespace::std;
 
 //const unsigned int lenX = 3;
-int const lenX = 15;
-float n = 1.03;
+int const lenX = 30;
+float n = 0.95;
 
 
 double random(double min, double max)
 {
-    return (double)(rand()) / RAND_MAX * (max - min) + max/2;
+    static int first = -1;
+    if ((first = (first < 0)))
+        srand(time(NULL)); // + getpid());
+    if (min >= max)
+        return errno = EDOM, NAN;
+
+    return min + (double)rand() / ((double)RAND_MAX / (max - min));
 }
+
+//double random(double min, double max)
+//{
+//    //srand(static_cast<unsigned int>(time(0))); // устанавливаем значение системных часов в качестве стартового числа
+//    srand(time(NULL));
+//    return (double)(rand()) / RAND_MAX * (max - min) + min;
+//}
 
 struct IntVector2 
 {
@@ -91,6 +106,11 @@ void generate_field(float n, Grid& varLig) //было int вместо Grid& (ma
     //создаю массив, в конце выполнения функции он удалится
     auto T = new float*[lenX];
 
+    int Ttop = 45;  // 100
+    int Tbottom = 5; // 0
+    int Tleft = 1;  // 0
+    int Tright = 15;  // 30
+
     //записываю в потенциальное (температурное) поле нули
     for (int i = 0; i < lenX; i++)
     {
@@ -101,13 +121,31 @@ void generate_field(float n, Grid& varLig) //было int вместо Grid& (ma
         }
     }
 
-    //рассчитываю градиент поля
-    for (int i = 1; i < lenX - 1; i++)
+    //задаю граничные условия для поля потенциалов
+    for (int i = 0; i < lenX; i++)
     {
-        for (int j = 1; j < lenX - 1; j++)
+        T[i][lenX - 1] = Ttop;
+        T[i][0] = int(Tbottom * random(0, i));
+        T[lenX - 1][i] = Tright;
+        T[0][i] = Tleft;
+    }
+
+    //рассчитываю градиент поля
+    int maxIter = 5;
+    for (size_t i = 0; i < maxIter; i++)
+    {
+        for (int i = 1; i < lenX - 1; i++)
         {
-            T[i][j] = (i + 1) / ((float)(2) * (j + 1)) + pow(2, j);
-            //T[i][j] = 0.25 * (T[i + 1][j] + T[i - 1][j] + T[i][j + 1] + T[i][j - 1]);
+            //cout << "\n ";
+            for (int j = 1; j < lenX - 1; j++)
+            {
+                //T[i][j] = (i + 1) / ((float)(2) * (j + 1)) + pow(2, j);
+                T[i][j] = (0.25 * T[i + 1][j] + 0.25 * T[i - 1][j] + 0.25 * T[i][j + 1] + 0.25 * T[i][j - 1]);
+
+                //cout << int(T[i][j]);
+                //cout << "  ";
+
+            }
         }
     }
 
@@ -116,9 +154,12 @@ void generate_field(float n, Grid& varLig) //было int вместо Grid& (ma
         for (int j = 2; j < lenX - 2; j++)
         {
             float Z = (T[i - 1][j] + T[i + 1][j] + T[i][j - 1] + T[i][j + 1]);
-
             
-            //__________________НАЧИНАЕТСЯ КОД С КОСЯКАМИ ДЛЯ ЗАДАНИЯ ПОЛЯ Lig_________________________________________________
+            //__________________НАЧИНАЕТСЯ КОД ДЛЯ ЗАДАНИЯ ПОЛЯ Lig____________________________
+            /*if (numIter == 0)
+                put(randPrint, i, j, random_decision(i + 1, j, Z, n, T));
+            else
+                put(randPrint2, i, j, random_decision(i + 1, j, Z, n, T));*/
 
             bool r_ip1 = random_decision(i + 1, j, Z, n, T) & (get(varLig, i, j) or get(varLig, i + 1, j - 1) or get(varLig, i + 1, j + 1) or get(varLig, i + 2, j));
             bool r_im1 = random_decision(i - 1, j, Z, n, T) & (get(varLig, i, j) or get(varLig, i - 1, j - 1) or get(varLig, i - 1, j + 1) or get(varLig, i - 2, j));
@@ -131,7 +172,7 @@ void generate_field(float n, Grid& varLig) //было int вместо Grid& (ma
                     put(varLig, i + 1, j, false);
                 }*/
             }
-            if (!r_ip1) {
+            else {
                 put(varLig, i + 1, j, false);
             }
 
@@ -144,7 +185,7 @@ void generate_field(float n, Grid& varLig) //было int вместо Grid& (ma
                     put(varLig, i - 1, j, false);
                 }*/
             }
-            if (!r_im1) {
+            else {
                 put(varLig, i - 1, j, false);
             }
 
@@ -156,8 +197,11 @@ void generate_field(float n, Grid& varLig) //было int вместо Grid& (ma
                     put(varLig, i, j + 1, false);
                 }*/
             }
-            if (!r_jp1) {
+            else if ((!r_jp1) & (get(varLig, i + 1, j) or get(varLig, i - 1, j))) {
                 put(varLig, i, j + 1, false);
+            }
+            else if (!get(varLig, i + 1, j) & !get(varLig, i - 1, j)) {
+                put(varLig, i, j + 1, true);
             }
         }
     }
@@ -176,6 +220,7 @@ int main()
 {
     Grid Lig;
 
+
     //int nn = 4;
     //int r = round(random(3, 6));
     //int rand = round(random(1, 3));
@@ -192,9 +237,35 @@ int main()
     //        put(Lig, i, rj * (lenX - nn) + j, true);
     //    }
     //}
+    int iter = int(lenX/4);
+    for (size_t i = 0; i < iter; i++)
+    {
+        put(Lig, 1, iter, true); //было 3 до замены на int(lenX* random(0.1, 1))
+        put(Lig, iter, 1, true);
+        generate_field(n, Lig);
+    }
 
-    //int(lenX / 2)
-    put(Lig, 0, 2, true);
+
+    /*
+    // тест для проверки рандома
+    Grid rPrint;
+    Grid rPrint2;
+    int numIter = 2;
+    for (size_t i = 0; i < numIter; i++)
+    {
+        generate_field(n, Lig, rPrint, rPrint2, numIter);
+    }
+    
+    for (int i = 0; i < lenX; i++) {
+        cout << " \n";
+        for (int j = 0; j < lenX; j++) {
+            int result = get(rPrint, i, j) - get(rPrint2, i, j);
+            cout << result;
+            cout << " ";
+        }
+    }
+    cout << " \n\n";*/
+    /*put(Lig, 0, 2, true);
     put(Lig, 1, 2, true);
     put(Lig, 2, 2, true);
     put(Lig, 3, 2, true);
@@ -207,13 +278,13 @@ int main()
     put(Lig, lenX, lenX - 2, true);
     put(Lig, lenX - 1, lenX - 2, true);
     put(Lig, lenX - 2, lenX - 2, true);
-    put(Lig, lenX - 3, lenX - 2, true);
+    put(Lig, lenX - 3, lenX - 2, true);*/
 
-    int numIter = 25;
+    /*int numIter = 25;
     for (int i = 0; i < numIter; i++) 
     {
-        generate_field(n, Lig);
-    }
+        
+    }*/
 
     for (int i = 0; i < lenX; i++) {
         cout << " \n";

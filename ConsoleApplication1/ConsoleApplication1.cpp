@@ -186,80 +186,80 @@ void generate_field(float n, Grid& varLig, int numIter)
 }
 
 
-int main()
-{
-    Grid Lig;
-
-
-    //int nn = 4;
-    //int r = round(random(3, 6));
-    //int rand = round(random(1, 3));
-    //int ri = round(random(0, 2));
-    //int rj = round(random(0, 2));
-    //for (int i = 0; i < nn; i++) {
-    //    for (int j = 0; j < nn; j++) {
-    //        int a = round(ri * (lenX - nn) + i);
-    //        int b = round((lenX / r) * (r - rand));
-    //        //(lenX / r) * (r - rand)
-    //        //(lenX / r) * (r - rand)
-    //        put(Lig, a, j, true);
-    //            // Lig[ri * (lenX - i) + i, int(lenY / r) * (r - rand)] = 1
-    //        put(Lig, i, rj * (lenX - nn) + j, true);
-    //    }
-    //}
-    int numIter = 2 * lenX;
-    put(Lig, 1, 3, true); //было 3 до замены на int(lenX* random(0.1, 1))
-    put(Lig, 3, 1, true);
-    generate_field(n, Lig, numIter);
-
-
-    /*
-    // тест для проверки рандома
-    Grid rPrint;
-    Grid rPrint2;
-    int numIter = 2;
-    for (size_t i = 0; i < numIter; i++)
-    {
-        generate_field(n, Lig, rPrint, rPrint2, numIter);
-    }
-    
-    for (int i = 0; i < lenX; i++) {
-        cout << " \n";
-        for (int j = 0; j < lenX; j++) {
-            int result = get(rPrint, i, j) - get(rPrint2, i, j);
-            cout << result;
-            cout << " ";
-        }
-    }
-    cout << " \n\n";*/
-    /*put(Lig, 0, 2, true);
-    put(Lig, 1, 2, true);
-    put(Lig, 2, 2, true);
-    put(Lig, 3, 2, true);
-
-    put(Lig, lenX - 2, 0, true);
-    put(Lig, lenX - 2, 1, true);
-    put(Lig, lenX - 2, 2, true);
-    put(Lig, lenX - 2, 3, true);
-
-    put(Lig, lenX, lenX - 2, true);
-    put(Lig, lenX - 1, lenX - 2, true);
-    put(Lig, lenX - 2, lenX - 2, true);
-    put(Lig, lenX - 3, lenX - 2, true);*/
-
-    /*int numIter = 25;
-    for (int i = 0; i < numIter; i++) 
-    {
-        
-    }*/
-
-    for (int i = 0; i < lenX; i++) {
-        cout << " \n";
-        for (int j = 0; j < lenX; j++) {
-            if (get(Lig, i, j))
-                cout << "1 ";
-            else
-                cout << "0 ";
-        }
-    }
-}
+//int main()
+//{
+//    Grid Lig;
+//
+//
+//    //int nn = 4;
+//    //int r = round(random(3, 6));
+//    //int rand = round(random(1, 3));
+//    //int ri = round(random(0, 2));
+//    //int rj = round(random(0, 2));
+//    //for (int i = 0; i < nn; i++) {
+//    //    for (int j = 0; j < nn; j++) {
+//    //        int a = round(ri * (lenX - nn) + i);
+//    //        int b = round((lenX / r) * (r - rand));
+//    //        //(lenX / r) * (r - rand)
+//    //        //(lenX / r) * (r - rand)
+//    //        put(Lig, a, j, true);
+//    //            // Lig[ri * (lenX - i) + i, int(lenY / r) * (r - rand)] = 1
+//    //        put(Lig, i, rj * (lenX - nn) + j, true);
+//    //    }
+//    //}
+//    int numIter = 2 * lenX;
+//    put(Lig, 1, 3, true); //было 3 до замены на int(lenX* random(0.1, 1))
+//    put(Lig, 3, 1, true);
+//    generate_field(n, Lig, numIter);
+//
+//
+//    /*
+//    // тест для проверки рандома
+//    Grid rPrint;
+//    Grid rPrint2;
+//    int numIter = 2;
+//    for (size_t i = 0; i < numIter; i++)
+//    {
+//        generate_field(n, Lig, rPrint, rPrint2, numIter);
+//    }
+//    
+//    for (int i = 0; i < lenX; i++) {
+//        cout << " \n";
+//        for (int j = 0; j < lenX; j++) {
+//            int result = get(rPrint, i, j) - get(rPrint2, i, j);
+//            cout << result;
+//            cout << " ";
+//        }
+//    }
+//    cout << " \n\n";*/
+//    /*put(Lig, 0, 2, true);
+//    put(Lig, 1, 2, true);
+//    put(Lig, 2, 2, true);
+//    put(Lig, 3, 2, true);
+//
+//    put(Lig, lenX - 2, 0, true);
+//    put(Lig, lenX - 2, 1, true);
+//    put(Lig, lenX - 2, 2, true);
+//    put(Lig, lenX - 2, 3, true);
+//
+//    put(Lig, lenX, lenX - 2, true);
+//    put(Lig, lenX - 1, lenX - 2, true);
+//    put(Lig, lenX - 2, lenX - 2, true);
+//    put(Lig, lenX - 3, lenX - 2, true);*/
+//
+//    /*int numIter = 25;
+//    for (int i = 0; i < numIter; i++) 
+//    {
+//        
+//    }*/
+//
+//    for (int i = 0; i < lenX; i++) {
+//        cout << " \n";
+//        for (int j = 0; j < lenX; j++) {
+//            if (get(Lig, i, j))
+//                cout << "1 ";
+//            else
+//                cout << "0 ";
+//        }
+//    }
+//}

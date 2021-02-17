@@ -7,11 +7,12 @@
 #include <unordered_map>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h> // для функции time()
+#include <time.h>
 
 using namespace::std;
 
-//const unsigned int lenX = 3;
+
+//для молнии 0.965
 int const lenX = 35;
 float n = 0.97;
 
@@ -86,12 +87,9 @@ bool random_decision(int k, int l, float Z, float n, float **T)
     float r = random(0, 1);
     float psi = r * Z;
     float Z1 = pow((T[k - 1][l] + T[k + 1][l] + T[k][l - 1] + T[k][l + 1]), n);
-    //float Z1 = pow(z1, n); 
-    //float Z1 = pow((get(T, k - 1, l) + get(T, k + 1, l) + get(T, k, l - 1) + get(T, k, l + 1)), n);
 
     return Z1 > psi;
 }
-
 
 //генератор поля
 void generate_field(float n, Grid& varLig, int numIter)
@@ -99,7 +97,8 @@ void generate_field(float n, Grid& varLig, int numIter)
     //создаю массив, в конце выполнения функции он удалится
     auto T = new float*[lenX];
 
-    int Ttop = 45;  // 100
+    //для молнии все значения =5
+    int Ttop = 5;  // 100
     int Tbottom = 5; // 0
     int Tleft = 5;  // 0
     int Tright = 5;  // 30
@@ -126,13 +125,9 @@ void generate_field(float n, Grid& varLig, int numIter)
     //рассчитываю поле
     for (int i = 2; i < lenX - 2; i++)
     {
-        //cout << "\n ";
         for (int j = 2; j < lenX - 2; j++)
         {
             T[i][j] = (i + 1) / ((float)(2) * (j + 1)) + pow(3, j)/ pow(2, j); //(pow(lenX, 2) + j + 1)
-            //T[i][j] = (0.25 * T[i + 1][j] + 0.25 * T[i - 1][j] + 0.25 * T[i][j + 1] + 0.25 * T[i][j - 1]);
-            //cout << int(T[i][j]);
-            //cout << "  ";
         }
     }
 
@@ -146,9 +141,9 @@ void generate_field(float n, Grid& varLig, int numIter)
 
                 //__________________НАЧИНАЕТСЯ КОД ДЛЯ ЗАДАНИЯ ПОЛЯ Lig____________________________
 
-                bool r_ip1 = random_decision(i + 1, j, Z, n, T) & (get(varLig, i, j) or get(varLig, i + 1, j - 1) or get(varLig, i + 1, j + 1) or get(varLig, i + 2, j));
-                bool r_im1 = random_decision(i - 1, j, Z, n, T) & (get(varLig, i, j) or get(varLig, i - 1, j - 1) or get(varLig, i - 1, j + 1) or get(varLig, i - 2, j));
-                bool r_jp1 = random_decision(i, j + 1, Z, n, T) & (get(varLig, i, j) or get(varLig, i - 1, j + 1) or get(varLig, i, j + 2) or get(varLig, i + 1, j + 1));
+                bool r_ip1 = random_decision(i + 1, j, Z, n, T) && (get(varLig, i, j) or get(varLig, i + 1, j - 1) or get(varLig, i + 1, j + 1) or get(varLig, i + 2, j));
+                bool r_im1 = random_decision(i - 1, j, Z, n, T) && (get(varLig, i, j) or get(varLig, i - 1, j - 1) or get(varLig, i - 1, j + 1) or get(varLig, i - 2, j));
+                bool r_jp1 = random_decision(i, j + 1, Z, n, T) && (get(varLig, i, j) or get(varLig, i - 1, j + 1) or get(varLig, i, j + 2) or get(varLig, i + 1, j + 1));
 
                 if (r_ip1) {
                     put(varLig, i + 1, j, true);
@@ -186,80 +181,45 @@ void generate_field(float n, Grid& varLig, int numIter)
 }
 
 
-//int main()
-//{
-//    Grid Lig;
-//
-//
-//    //int nn = 4;
-//    //int r = round(random(3, 6));
-//    //int rand = round(random(1, 3));
-//    //int ri = round(random(0, 2));
-//    //int rj = round(random(0, 2));
-//    //for (int i = 0; i < nn; i++) {
-//    //    for (int j = 0; j < nn; j++) {
-//    //        int a = round(ri * (lenX - nn) + i);
-//    //        int b = round((lenX / r) * (r - rand));
-//    //        //(lenX / r) * (r - rand)
-//    //        //(lenX / r) * (r - rand)
-//    //        put(Lig, a, j, true);
-//    //            // Lig[ri * (lenX - i) + i, int(lenY / r) * (r - rand)] = 1
-//    //        put(Lig, i, rj * (lenX - nn) + j, true);
-//    //    }
-//    //}
-//    int numIter = 2 * lenX;
-//    put(Lig, 1, 3, true); //было 3 до замены на int(lenX* random(0.1, 1))
-//    put(Lig, 3, 1, true);
-//    generate_field(n, Lig, numIter);
-//
-//
-//    /*
-//    // тест для проверки рандома
-//    Grid rPrint;
-//    Grid rPrint2;
-//    int numIter = 2;
-//    for (size_t i = 0; i < numIter; i++)
-//    {
-//        generate_field(n, Lig, rPrint, rPrint2, numIter);
-//    }
-//    
-//    for (int i = 0; i < lenX; i++) {
-//        cout << " \n";
-//        for (int j = 0; j < lenX; j++) {
-//            int result = get(rPrint, i, j) - get(rPrint2, i, j);
-//            cout << result;
-//            cout << " ";
-//        }
-//    }
-//    cout << " \n\n";*/
-//    /*put(Lig, 0, 2, true);
-//    put(Lig, 1, 2, true);
-//    put(Lig, 2, 2, true);
-//    put(Lig, 3, 2, true);
-//
-//    put(Lig, lenX - 2, 0, true);
-//    put(Lig, lenX - 2, 1, true);
-//    put(Lig, lenX - 2, 2, true);
-//    put(Lig, lenX - 2, 3, true);
-//
-//    put(Lig, lenX, lenX - 2, true);
-//    put(Lig, lenX - 1, lenX - 2, true);
-//    put(Lig, lenX - 2, lenX - 2, true);
-//    put(Lig, lenX - 3, lenX - 2, true);*/
-//
-//    /*int numIter = 25;
-//    for (int i = 0; i < numIter; i++) 
-//    {
-//        
-//    }*/
-//
-//    for (int i = 0; i < lenX; i++) {
-//        cout << " \n";
-//        for (int j = 0; j < lenX; j++) {
-//            if (get(Lig, i, j))
-//                cout << "1 ";
-//            else
-//                cout << "0 ";
-//        }
-//    }
-//}
+int main()
+{
+    Grid Lig;
+
+    //int nn = 4;
+    //int r = round(random(3, 6));
+    //int rand = round(random(1, 3));
+    //int ri = round(random(0, 2));
+    //int rj = round(random(0, 2));
+    //for (int i = 0; i < nn; i++) {
+    //    for (int j = 0; j < nn; j++) {
+    //        int a = round(ri * (lenX - nn) + i);
+    //        int b = round((lenX / r) * (r - rand));
+    //        //(lenX / r) * (r - rand)
+    //        //(lenX / r) * (r - rand)
+    //        put(Lig, a, j, true);
+    //            // Lig[ri * (lenX - i) + i, int(lenY / r) * (r - rand)] = 1
+    //        put(Lig, i, rj * (lenX - nn) + j, true);
+    //    }
+    //}
+
+    int numIter = int(0.2 * lenX);
+
+    //начальные условия для молнии-пещеры
+    put(Lig, 3, int(lenX / 2), true); 
+
+    //начальные условия для лабиринта
+    //put(Lig, 1, 3, true);
+    //put(Lig, 3, 2, true);
+
+    generate_field(n, Lig, numIter);
+
+    for (int i = 0; i < lenX; i++) {
+        cout << " \n";
+        for (int j = 0; j < lenX; j++) {
+            if (get(Lig, i, j))
+                cout << "  ";
+            else
+                cout << "||";
+        }
+    }
+}

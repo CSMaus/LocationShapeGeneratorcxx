@@ -81,6 +81,23 @@ bool put(Grid& grid, int x, int y, bool it)
     return 0;
 }
 
+
+int counterOfTrues(Grid& boolField, int squareSize, int k, int l)
+{
+    int numOfTrue = 0;
+    for (int i = k; i < squareSize + k; i++)
+    {
+        for (int j = l; j < squareSize + l; j++)
+        {
+            if (get(boolField, i, j))
+            {
+                numOfTrue++;
+            }
+        }
+    }
+    return numOfTrue;
+}
+
 //сравниваем 
 bool random_decision(int k, int l, float Z, float n, float **T)
 {
@@ -180,32 +197,44 @@ void generate_field(float n, Grid& varLig, int numIter)
     delete T;*/
 }
 
+//фильтрация лабиринта для более квадратной формы
+void filter_field(Grid& varLig, int yPoint, int squareSize)
+{
+    Grid timingLig;
+
+    //сжимаем
+    for (int i = yPoint; i < lenX; i+= squareSize)
+    {
+        for (int j = yPoint; j < lenX; j+= squareSize)
+        {
+            if (counterOfTrues(varLig, squareSize, i, j) > 2)
+            {
+                put(timingLig, i, j, true);
+            }
+            else 
+            {
+                put(timingLig, i, j, false);
+            }
+        }
+    }
+
+
+    //возвращаем нужный размер
+}
+
 
 int main()
 {
     Grid Lig;
 
-    //int nn = 4;
-    //int r = round(random(3, 6));
-    //int rand = round(random(1, 3));
-    //int ri = round(random(0, 2));
-    //int rj = round(random(0, 2));
-    //for (int i = 0; i < nn; i++) {
-    //    for (int j = 0; j < nn; j++) {
-    //        int a = round(ri * (lenX - nn) + i);
-    //        int b = round((lenX / r) * (r - rand));
-    //        //(lenX / r) * (r - rand)
-    //        //(lenX / r) * (r - rand)
-    //        put(Lig, a, j, true);
-    //            // Lig[ri * (lenX - i) + i, int(lenY / r) * (r - rand)] = 1
-    //        put(Lig, i, rj * (lenX - nn) + j, true);
-    //    }
-    //}
-
     int numIter = int(0.2 * lenX);
 
     //начальные условия для молнии-пещеры
-    put(Lig, 3, int(lenX / 2), true); 
+    int startyPoint = int(lenX / 2);
+    put(Lig, 3, startyPoint, true);
+    
+    //данные для постобработки путём сжатия //сейчас написано только для размера 2
+    int squareSize = 2;
 
     //начальные условия для лабиринта
     //put(Lig, 1, 3, true);

@@ -13,7 +13,7 @@ using namespace::std;
 
 
 //для молнии 0.965
-int const lenX = 35;
+int const lenX = 30;
 float n = 0.97;
 
 
@@ -109,7 +109,7 @@ bool random_decision(int k, int l, float Z, float n, float **T)
 }
 
 //генератор поля
-void generate_field(float n, Grid& varLig, int numIter)
+void generate_field(float n, Grid& varLig, int numIter, int squareSize)
 {
     //создаю массив, в конце выполнения функции он удалится
     auto T = new float*[lenX];
@@ -188,6 +188,53 @@ void generate_field(float n, Grid& varLig, int numIter)
         }
     }
 
+    /*for (int m = 2; m < lenX - squareSize - 2; m+= squareSize)
+    {
+        for (int i = m; i < squareSize + m; i++)
+        {
+            for (int j = m; j < squareSize + m; j++)
+            {
+                if (counterOfTrues(varLig, squareSize, i, j) > 2)
+                {
+                    put(varLig, i, j, true);
+                }
+                else
+                {
+                    put(varLig, i, j, false);
+                }
+            }
+        }
+    }*/
+
+
+    for (int i = 2; i < lenX - squareSize - 2; i+= squareSize)
+    {
+        cout << "\n";
+        for (int j = 2; j < lenX - squareSize - 2; j+= squareSize)
+        {
+            if (counterOfTrues(varLig, squareSize, i, j) > 2) {
+                for (int k = i; k < i + squareSize; k++)
+                {
+                    for (int l = j; l < j + squareSize; l++)
+                    {
+                        put(varLig, k, l, true);
+                        cout << "  ";
+                    }
+                }
+            }
+
+            else {
+                for (int k = i; k < i + squareSize; k++)
+                {
+                    for (int l = j; l < j + squareSize; l++)
+                    {
+                        put(varLig, k, l, false);
+                        cout << "||";
+                    }
+                }
+            }
+        }
+    }
 
     //удаляю массив - очищаю память //пока не работает
     /*for (size_t i = 0; i <= lenX; i++)
@@ -198,28 +245,44 @@ void generate_field(float n, Grid& varLig, int numIter)
 }
 
 //фильтрация лабиринта для более квадратной формы
-void filter_field(Grid& varLig, int yPoint, int squareSize)
+void filter_field(Grid& varLig, int squareSize, int numIter)
 {
     Grid timingLig;
 
-    //сжимаем
-    for (int i = yPoint; i < lenX; i+= squareSize)
-    {
-        for (int j = yPoint; j < lenX; j+= squareSize)
+        //сжимаем
+        int k = 0, l = 0;
+
+        for (int m = 2; m < lenX - squareSize - 2; m++)
         {
-            if (counterOfTrues(varLig, squareSize, i, j) > 2)
+            for (int i = m; i < squareSize + m; i++)
             {
-                put(timingLig, i, j, true);
-            }
-            else 
-            {
-                put(timingLig, i, j, false);
+                for (int j = m; j < squareSize + m; j++)
+                {
+                    if (counterOfTrues(varLig, squareSize, i, j) > 2)
+                    {
+                        put(varLig, i, j, true);
+                    }
+                    else
+                    {
+                        put(varLig, i, j, false);
+                    }
+                }
             }
         }
-    }
 
-
-    //возвращаем нужный размер
+        //возвращаем нужный размер
+        /*k = 0, l = 0;
+        for (int m = 0; m < lenX / squareSize; m++)
+        {
+            for (int i = m; i < squareSize + m; i++)
+            {
+                for (int j = m; j < squareSize + m; j++)
+                {
+                    put(varLig, i, j, get(timingLig, k, l));
+                }
+            }
+        }*/
+    
 }
 
 
@@ -229,18 +292,20 @@ int main()
 
     int numIter = int(0.2 * lenX);
 
+
     //начальные условия для молнии-пещеры
-    int startyPoint = int(lenX / 2);
-    put(Lig, 3, startyPoint, true);
+    put(Lig, 3, int(lenX/2), true);
+
     
     //данные для постобработки путём сжатия //сейчас написано только для размера 2
     int squareSize = 2;
+
 
     //начальные условия для лабиринта
     //put(Lig, 1, 3, true);
     //put(Lig, 3, 2, true);
 
-    generate_field(n, Lig, numIter);
+    generate_field(n, Lig, numIter, squareSize);
 
     for (int i = 0; i < lenX; i++) {
         cout << " \n";

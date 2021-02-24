@@ -12,9 +12,9 @@
 using namespace::std;
 
 
-//для молнии 0.965
+//для молнии 0.976
 int const lenX = 30;
-float n = 0.976;
+float n = 0.967;
 
 
 double random(double min, double max)
@@ -81,7 +81,6 @@ bool put(Grid& grid, int x, int y, bool it)
 bool isOrAss(Grid& grid, int x, int y, bool it)
 {
     grid.insert_or_assign(IntVector2(x, y), it);
-    //grid.emplace(IntVector2(x, y), it);
     return 0;
 }
 
@@ -120,7 +119,7 @@ void generate_field(float n, Grid& varLig, int numIter, int squareSize)
 
     //для молнии все значения =5
     int Ttop = 5;  // 100
-    int Tbottom = 5; // 0
+    int Tbottom = 15; // 0
     int Tleft = 5;  // 0
     int Tright = 5;  // 30
 
@@ -192,50 +191,6 @@ void generate_field(float n, Grid& varLig, int numIter, int squareSize)
         }
     }
 
-    /*for (int m = 2; m < lenX - squareSize - 2; m+= squareSize)
-    {
-        for (int i = m; i < squareSize + m; i++)
-        {
-            for (int j = m; j < squareSize + m; j++)
-            {
-                if (counterOfTrues(varLig, squareSize, i, j) > 2)
-                {
-                    put(varLig, i, j, true);
-                }
-                else
-                {
-                    put(varLig, i, j, false);
-                }
-            }
-        }
-    }*/
-
-
-    /*for (int i = 2; i < lenX - squareSize - 2; i+= squareSize)
-    {
-        for (int j = 2; j < lenX - squareSize - 2; j+= squareSize)
-        {
-            if (counterOfTrues(varLig, squareSize, i, j) >= 2) {
-                for (int k = i; k < i + squareSize; k++)
-                {
-                    for (int l = j; l < j + squareSize; l++)
-                    {
-                        put(varLig, k, l, true);                    }
-                }
-            }
-
-            else {
-                for (int k = i; k < i + squareSize; k++)
-                {
-                    for (int l = j; l < j + squareSize; l++)
-                    {
-                        put(varLig, k, l, false);
-                    }
-                }
-            }
-        }
-    }*/
-
     //удаляю массив - очищаю память //пока не работает
     /*for (size_t i = 0; i <= lenX; i++)
     {
@@ -284,8 +239,7 @@ int main()
     int numIter = int(0.2 * lenX);
 
     //начальные условия для молнии-пещеры
-    put(Lig, 3, int(lenX/2), true);
-
+    put(Lig, 3, int(lenX / 2.5), true);
     //данные для постобработки путём сжатия
     int squareSize = 2;
 

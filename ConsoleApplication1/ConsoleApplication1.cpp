@@ -14,7 +14,8 @@ using namespace::std;
 
 //для молнии 0.976
 int const lenX = 30;
-float n = 0.967;
+//float n = 0.967;
+float n = 0.9;
 
 
 double random(double min, double max)
@@ -73,12 +74,12 @@ bool get(Grid& grid, int x, int y)
 //кладём значение по кординатам
 bool put(Grid& grid, int x, int y, bool it)
 {
-    //grid.insert_or_assign(IntVector2(x, y), it);
-    grid.emplace(IntVector2(x, y), it);
+    grid.insert_or_assign(IntVector2(x, y), it);
+    //grid.emplace(IntVector2(x, y), it);
     return 0;
 }
 
-bool isOrAss(Grid& grid, int x, int y, bool it)
+bool set(Grid& grid, int x, int y, bool it)
 {
     grid.insert_or_assign(IntVector2(x, y), it);
     return 0;
@@ -118,10 +119,10 @@ void generate_field(float n, Grid& varLig, int numIter, int squareSize)
     auto T = new float*[lenX];
 
     //для молнии все значения =5
-    int Ttop = 5;  // 100
-    int Tbottom = 15; // 0
-    int Tleft = 5;  // 0
-    int Tright = 5;  // 30
+    int Ttop = 0;  // 100
+    int Tbottom = 0; // 0
+    int Tleft = 0;  // 0
+    int Tright = 0;  // 30
 
     //записываю в потенциальное (температурное) поле нули
     for (int i = 0; i < lenX; i++)
@@ -187,16 +188,17 @@ void generate_field(float n, Grid& varLig, int numIter, int squareSize)
                 else {
                     put(varLig, i, j + 1, false);
                 }
+
             }
         }
     }
 
     //удаляю массив - очищаю память //пока не работает
-    /*for (size_t i = 0; i <= lenX; i++)
+    for (size_t i = 0; i < lenX; i++)
     {
         delete T[i];
     }
-    delete T;*/
+    delete T;
 }
 
 //фильтрация лабиринта для более квадратной формы
@@ -211,7 +213,7 @@ void filter_field(Grid& varLig, int squareSize, int numIter)
                 {
                     for (int l = j; l < j + squareSize; l++)
                     {
-                        isOrAss(varLig, k, l, true);
+                        set(varLig, k, l, true);
                     }
                 }
             }
@@ -221,7 +223,7 @@ void filter_field(Grid& varLig, int squareSize, int numIter)
                 {
                     for (int l = j; l < j + squareSize; l++)
                     {
-                        isOrAss(varLig, k, l, false);
+                        set(varLig, k, l, false);
                     }
                 }
             }
@@ -236,14 +238,17 @@ int main()
 {
     Grid Lig;
 
-    int numIter = int(0.2 * lenX);
+    int numIter = 2;
 
     //начальные условия для молнии-пещеры
-    put(Lig, 3, int(lenX / 2.5), true);
+    put(Lig, 3, 3, true);
+    put(Lig, lenX - 3, 3, true);
     //данные для постобработки путём сжатия
     int squareSize = 2;
 
     generate_field(n, Lig, numIter, squareSize);
+    put(Lig, 3, 3, true);
+    put(Lig, lenX - 3, 3, true);
 
     for (int i = 0; i < lenX; i++) {
         cout << " \n";

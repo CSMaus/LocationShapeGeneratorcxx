@@ -15,7 +15,7 @@ using namespace::std;
 //для молнии 0.976
 int const lenX = 30;
 //float n = 0.967;
-float n = 0.9;
+float n = 0.97;
 
 
 double random(double min, double max)
@@ -72,18 +72,12 @@ bool get(Grid& grid, int x, int y)
 }
 
 //кладём значение по кординатам
-bool put(Grid& grid, int x, int y, bool it)
-{
-    grid.insert_or_assign(IntVector2(x, y), it);
-    //grid.emplace(IntVector2(x, y), it);
-    return 0;
-}
-
 bool set(Grid& grid, int x, int y, bool it)
 {
     grid.insert_or_assign(IntVector2(x, y), it);
     return 0;
 }
+
 
 
 int counterOfTrues(Grid& boolField, int squareSize, int k, int l)
@@ -119,10 +113,10 @@ void generate_field(float n, Grid& varLig, int numIter, int squareSize)
     auto T = new float*[lenX];
 
     //для молнии все значения =5
-    int Ttop = 0;  // 100
-    int Tbottom = 0; // 0
-    int Tleft = 0;  // 0
-    int Tright = 0;  // 30
+    int Ttop = 5;  // 100
+    int Tbottom = 5; // 0
+    int Tleft = 15;  // 0
+    int Tright = 5;  // 30
 
     //записываю в потенциальное (температурное) поле нули
     for (int i = 0; i < lenX; i++)
@@ -146,49 +140,31 @@ void generate_field(float n, Grid& varLig, int numIter, int squareSize)
     //рассчитываю поле
     for (int i = 2; i < lenX - 2; i++)
     {
+        //cout << "\n";
         for (int j = 2; j < lenX - 2; j++)
         {
             T[i][j] = (i + 1) / ((float)(2) * (j + 1)) + pow(3, j)/ pow(2, j); //(pow(lenX, 2) + j + 1)
+            //cout << T[i][j];
+            //cout << " ";
         }
     }
 
-    for (int i = 0; i < numIter; i++)
+    for (int i = 2; i < lenX - 2; i++)
     {
-        for (int i = 2; i < lenX - 2; i++)
+        for (int j = 2; j < lenX - 2; j++)
         {
-            for (int j = 2; j < lenX - 2; j++)
-            {
-                float Z = (T[i - 1][j] + T[i + 1][j] + T[i][j - 1] + T[i][j + 1]);
+            float Z = (T[i - 1][j] + T[i + 1][j] + T[i][j - 1] + T[i][j + 1]);
 
-                //__________________НАЧИНАЕТСЯ КОД ДЛЯ ЗАДАНИЯ ПОЛЯ Lig____________________________
+            //__________________НАЧИНАЕТСЯ КОД ДЛЯ ЗАДАНИЯ ПОЛЯ Lig____________________________
 
-                bool r_ip1 = random_decision(i + 1, j, Z, n, T) && (get(varLig, i, j) or get(varLig, i + 1, j - 1) or get(varLig, i + 1, j + 1) or get(varLig, i + 2, j));
-                bool r_im1 = random_decision(i - 1, j, Z, n, T) && (get(varLig, i, j) or get(varLig, i - 1, j - 1) or get(varLig, i - 1, j + 1) or get(varLig, i - 2, j));
-                bool r_jp1 = random_decision(i, j + 1, Z, n, T) && (get(varLig, i, j) or get(varLig, i - 1, j + 1) or get(varLig, i, j + 2) or get(varLig, i + 1, j + 1));
+            bool thereIsNeib = random_decision(i, j, Z, n, T) && (get(varLig, i - 1, j) or get(varLig, i + 1, j) or get(varLig, i, j + 1) or get(varLig, i, j - 1));
 
-                if (r_ip1) {
-                    put(varLig, i + 1, j, true);
-                }
-                else {
-                    put(varLig, i + 1, j, false);
-                }
-
-                // определяю для x - 1
-                if (r_im1) {
-                    put(varLig, i - 1, j, true);
-                }
-                else {
-                    put(varLig, i - 1, j, false);
-                }
-
-                // определяю для y + 1
-                if (r_jp1) {
-                    put(varLig, i, j + 1, true);
-                }
-                else {
-                    put(varLig, i, j + 1, false);
-                }
-
+            if (thereIsNeib) {
+                set(varLig, i, j, true);
+                T[i][j] = 100;
+            }
+            else {
+                set(varLig, i, j, false);
             }
         }
     }
@@ -233,22 +209,22 @@ void filter_field(Grid& varLig, int squareSize, int numIter)
 }
 
 
-
+/*
 int main()
 {
     Grid Lig;
 
-    int numIter = 2;
+    int numIter =3;
 
     //начальные условия для молнии-пещеры
-    put(Lig, 3, 3, true);
-    put(Lig, lenX - 3, 3, true);
+    set(Lig, 3, 3, true);
+    set(Lig, lenX - 3, 3, true);
     //данные для постобработки путём сжатия
     int squareSize = 2;
 
     generate_field(n, Lig, numIter, squareSize);
-    put(Lig, 3, 3, true);
-    put(Lig, lenX - 3, 3, true);
+    set(Lig, 3, 3, true);
+    set(Lig, lenX - 3, 3, true);
 
     for (int i = 0; i < lenX; i++) {
         cout << " \n";
@@ -260,6 +236,7 @@ int main()
         }
     }
 
+    
     filter_field(Lig, squareSize, numIter);
 
     for (int i = 0; i < lenX; i++) {
@@ -270,6 +247,6 @@ int main()
             else
                 cout << "||";
         }
-    }
-
+    } 
 }
+*/

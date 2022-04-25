@@ -180,13 +180,13 @@ void generate_field(float n, Grid& varLig, int numIter, int squareSize)
         {
             float Z = (T[i - 1][j] + T[i + 1][j] + T[i][j - 1] + T[i][j + 1]);
 
-<<<<<<< HEAD
+
             //__________________НАЧИНАЕТСЯ КОД ДЛЯ ЗАДАНИЯ ПОЛЯ Lig____________________________
-=======
-                bool r_ip1 = random_decision(i + 1, j, Z, n, T) && (IsFilled(varLig, i, j) or IsFilled(varLig, i + 1, j - 1) or get(varLig, i + 1, j + 1) or get(varLig, i + 2, j));
-                bool r_im1 = random_decision(i - 1, j, Z, n, T) && (IsFilled(varLig, i, j) or IsFilled(varLig, i - 1, j - 1) or get(varLig, i - 1, j + 1) or get(varLig, i - 2, j));
-                bool r_jp1 = random_decision(i, j + 1, Z, n, T) && (IsFilled(varLig, i, j) or IsFilled(varLig, i - 1, j + 1) or get(varLig, i, j + 2) or get(varLig, i + 1, j + 1));
->>>>>>> 1e648cfcb97aaa167474fcfa877c06858d4987f1
+
+            bool r_ip1 = random_decision(i + 1, j, Z, n, T) && (IsFilled(varLig, i, j) or IsFilled(varLig, i + 1, j - 1) or get(varLig, i + 1, j + 1) or get(varLig, i + 2, j));
+            bool r_im1 = random_decision(i - 1, j, Z, n, T) && (IsFilled(varLig, i, j) or IsFilled(varLig, i - 1, j - 1) or get(varLig, i - 1, j + 1) or get(varLig, i - 2, j));
+            bool r_jp1 = random_decision(i, j + 1, Z, n, T) && (IsFilled(varLig, i, j) or IsFilled(varLig, i - 1, j + 1) or get(varLig, i, j + 2) or get(varLig, i + 1, j + 1));
+
 
             bool thereIsNeib = random_decision(i, j, Z, n, T) && (get(varLig, i - 1, j) or get(varLig, i + 1, j) or get(varLig, i, j + 1) or get(varLig, i, j - 1));
 
@@ -246,7 +246,7 @@ int main()
 {
     Grid FIntVector;
 
-<<<<<<< HEAD
+
     int numIter =3;
 
     //начальные условия для молнии-пещеры
@@ -258,7 +258,7 @@ int main()
     generate_field(n, Lig, numIter, squareSize);
     set(Lig, 3, 3, true);
     set(Lig, lenX - 3, 3, true);
-=======
+
     /*
     int numIter = 2;
 
@@ -275,7 +275,6 @@ int main()
 
     /*
     filter_field(FIntVector, squareSize, numIter);
->>>>>>> 1e648cfcb97aaa167474fcfa877c06858d4987f1
 
     for (int i = 0; i < lenX; i++) {
         cout << " \n";

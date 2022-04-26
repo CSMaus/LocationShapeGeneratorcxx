@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 //#include "LinearGeometryGenerator.h"
+#define PI 	                (3.1415926f)
 
 using namespace std;
 
@@ -85,9 +86,9 @@ struct Params
 {
 public:
     int width = 30;
-    int height = 10;
+    int height = 30;
 
-    float powerFill = 0.9;
+    float powerFill = 0.999;
     int numIter = 1;
     int timeIterLight = int(width + height) * 3;
 
@@ -104,27 +105,31 @@ public:
 void GenerateLinearMap(Grid& lightMap, int location)
 {
     Params param;
+    float pstart = param.powerFill;
+
+    //создаю массив, в конце выполнения функции он удалится
+    auto P = new float* [param.width];
+    //записываю в потенциальное (температурное) поле нули
+    for (int i = 0; i < param.width; i++)
+    {
+        P[i] = new float[param.height];
+        for (int j = 0; j < param.height; j++)
+        {
+            P[i][j] = 0;
+        }
+    }
+
+    //Fill the linear lighting map
+    set(lightMap, param.width / 2, 0, true);
+    set(lightMap, param.width / 2, 1, true);
+    set(lightMap, param.width / 2, 2, true);
+
+
 
     if (location == 0)
     {
-        float pstart = param.powerFill;
-        
-        //создаю массив, в конце выполнения функции он удалится
-        auto P = new float* [param.width];
-        //записываю в потенциальное (температурное) поле нули
-        for (int i = 0; i < param.width; i++)
-        {
-            P[i] = new float[param.height];
-            for (int j = 0; j < param.height; j++)
-            {
-                P[i][j] = 0;
-            }
-        }
-
-
         for (int i = 1; i < param.width; i++)
         {
-            P[i] = new float[param.height];
             for (int j = 1; j < param.height; j++)
             {
                 if (i == int(param.width / 2))
@@ -133,8 +138,6 @@ void GenerateLinearMap(Grid& lightMap, int location)
                 }
                 else if (i > int(param.width / 2))
                 {
-                    //P[i][j] = (pow(pstart, param.degP) + pow(P[i - 1][j - 1], param.degP)) / 2 - 0.1;
-                    //P[i][j] = (pow((P[i - 1][j]), param.degP2) + pow((P[i][j - 1]), param.degP2)) / 2 - 0.25;
                     P[i][j - 1] = (pow(pstart, param.degP) + pow(P[i - 1][j - 1], param.degP)) / 2 - 0.1;
                     P[i][j] = (pow((P[i - 1][j]), param.degP2) + pow((P[i][j - 1]), param.degP2)) / 2 - 0.25;
 
@@ -143,10 +146,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                 {
                     P[i][j] = 0;
                 }
-                cout << P[i][j];
-                cout << ' ';
             }
-            cout << '\n';
         }
 
         for (int i = param.width / 2 - 1; i >= 0; i--)
@@ -157,13 +157,6 @@ void GenerateLinearMap(Grid& lightMap, int location)
                 P[i][j] = (pow((P[i + 1][j]), param.degP2) + pow((P[i][j - 1]), param.degP2)) / 2 - 0.25;
             }
         }
-
-
-        //Fill the linear lighting map
-        set(lightMap, param.width / 2, 0, true);
-        set(lightMap, param.width / 2, 1, true);
-        set(lightMap, param.width / 2, 2, true);
-
 
         for (int j = 2; j < param.height - 2; j++)
         {
@@ -209,7 +202,79 @@ void GenerateLinearMap(Grid& lightMap, int location)
             }
         }
     }
+    else if (location == 1)
+    {
+        for (int i = 1; i < param.width; i++)
+        {
+            for (int j = 1; j < param.height; j++)
+            {
+                P[i][j] = pstart;
+            }
+        }
 
+        float xmax = 0.937;
+        float V = 40.0;
+        float d = 28.0;
+        float g = 0.5;
+        float ksi = random(0, 1);
+        float alpha = 2 * PI * ksi;
+        float E0 = alpha * V / d;
+        float Emax = g * log(exp(2 * PI * xmax * V / (d * g)) - xmax * (exp(2 * PI * xmax * V / (d * g)) - 1));
+
+        for (int j = 2; j < param.height - 2; j++)
+        {
+            for (int i = param.width / 2; i >= 2; i--)
+            {
+                bool thereIsNeib = get(lightMap, i + 1, j) or get(lightMap, i - 1, j) or get(lightMap, i, j - 1);
+                
+                float z = 0.25 * (P[i + 1][j] + P[i][j + 1] + P[i - 1][j] + P[i][j - 1]);
+                
+                float E = g * log(exp(E0 / g) - ksi * exp(E0 / g) - 1);
+                
+
+                if (thereIsNeib) {
+                    //bool dothis = ((E / Emax) >= z) || (get(lightMap, i, j));
+
+                    if ((E / Emax) >= z || get(lightMap, i, j))
+                    {
+                        set(lightMap, i, j, true);
+                        P[i][j] = E;
+                    }
+                    else
+                    {
+                        set(lightMap, i, j, false);
+                    }
+                }
+
+            }
+            for (int i = param.width / 2; i < param.width - 2; i++)
+            {
+                bool thereIsNeib = get(lightMap, i + 1, j) or get(lightMap, i - 1, j) or get(lightMap, i, j - 1);
+
+                float z = 0.25 * (P[i + 1][j] + P[i][j + 1] + P[i - 1][j] + P[i][j - 1]);
+
+                float E = g * log(exp(E0 / g) - ksi * exp(E0 / g) - 1);
+                
+
+                if (thereIsNeib) {
+                    //bool dothis = ((E / Emax) >= z) || (get(lightMap, i, j));
+
+                    if ((E / Emax) >= z || get(lightMap, i, j))
+                    {
+                        set(lightMap, i, j, true);
+                        P[i][j] = E;
+                    }
+                    else
+                    {
+                        set(lightMap, i, j, false);
+                    }
+                }
+
+            }
+        }
+
+    }
+    
         //P[i][j] = (pow(pstart, param.degP) + pow(P[i - 1][j - 1], param.degP)) / 2 - 0.1;
 }
 
@@ -225,7 +290,7 @@ int main()
     //данные для постобработки путём сжатия
     int squareSize = 2;
 
-    GenerateLinearMap(Lig, 0);
+    GenerateLinearMap(Lig, 1);
     set(Lig, 3, 3, true);
     set(Lig, params.width - 3, 3, true);
 

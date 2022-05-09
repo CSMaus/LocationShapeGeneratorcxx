@@ -88,7 +88,7 @@ public:
     int width = 30;
     int height = 30;
 
-    float powerFill = 0.999;
+    float powerFill = 0.95;
     int numIter = 1;
     int timeIterLight = int(width + height) * 3;
 
@@ -107,9 +107,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
     Params param;
     float pstart = param.powerFill;
 
-    //создаю массив, в конце выполнения функции он удалится
     auto P = new float* [param.width];
-    //записываю в потенциальное (температурное) поле нули
     for (int i = 0; i < param.width; i++)
     {
         P[i] = new float[param.height];
@@ -225,7 +223,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
         {
             for (int i = param.width / 2; i >= 2; i--)
             {
-                bool thereIsNeib = get(lightMap, i + 1, j) or get(lightMap, i - 1, j) or get(lightMap, i, j - 1);
+                bool thereIsNeib = get(lightMap, i + 1, j) || get(lightMap, i - 1, j) || get(lightMap, i, j - 1) || get(lightMap, i, j + 1);
                 
                 float z = 0.25 * (P[i + 1][j] + P[i][j + 1] + P[i - 1][j] + P[i][j - 1]);
                 
@@ -249,7 +247,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
             }
             for (int i = param.width / 2; i < param.width - 2; i++)
             {
-                bool thereIsNeib = get(lightMap, i + 1, j) or get(lightMap, i - 1, j) or get(lightMap, i, j - 1);
+                bool thereIsNeib = get(lightMap, i + 1, j) || get(lightMap, i - 1, j) || get(lightMap, i, j - 1) || get(lightMap, i, j + 1);
 
                 float z = 0.25 * (P[i + 1][j] + P[i][j + 1] + P[i - 1][j] + P[i][j - 1]);
 
@@ -284,10 +282,10 @@ int main()
     Grid Lig;
 
     Params params;
-    //начальные условия для молнии-пещеры
+
     set(Lig, 3, 3, true);
     set(Lig, params.width - 3, 3, true);
-    //данные для постобработки путём сжатия
+
     int squareSize = 2;
 
     GenerateLinearMap(Lig, 1);

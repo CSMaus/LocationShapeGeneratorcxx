@@ -63,21 +63,21 @@ template<> struct std::hash<IntVector2> {
 
 typedef std::unordered_map<IntVector2, int> Grid;
 
-//берём значение по координатам
+
 bool get(Grid& grid, int x, int y)
 {
     auto it = grid.find(IntVector2(x, y));
     if (it == grid.end())
         return false;
 
-    //возвращаем то, что положили
+
     return it->second;
 }
 
-//кладём значение по кординатам
+
 bool set(Grid& grid, int x, int y, bool it)
 {
-    grid.insert_or_assign(IntVector2(x, y), it);
+    grid.insert_or_assign(IntVector2(x, y), it); //insert_or_assign  //emplace
     return 0;
 }
 
@@ -85,7 +85,7 @@ bool set(Grid& grid, int x, int y, bool it)
 struct Params
 {
 public:
-    int width = 30;
+    int width = 20;
     int height = 30;
 
     float powerFill = 0.95;
@@ -98,6 +98,7 @@ public:
     int degP2 = 1.2;
 
     float Spreading = 0.2;
+    float z = 0.048;
 };
 
 
@@ -136,6 +137,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                 }
                 else if (i > int(param.width / 2))
                 {
+                    //first half of the potential field
                     P[i][j - 1] = (pow(pstart, param.degP) + pow(P[i - 1][j - 1], param.degP)) / 2 - 0.1;
                     P[i][j] = (pow((P[i - 1][j]), param.degP2) + pow((P[i][j - 1]), param.degP2)) / 2 - 0.25;
 
@@ -147,6 +149,8 @@ void GenerateLinearMap(Grid& lightMap, int location)
             }
         }
 
+
+        //second half of the potential field
         for (int i = param.width / 2 - 1; i >= 0; i--)
         {
             for (int j = 1; j < param.height; j += 1)
@@ -156,11 +160,12 @@ void GenerateLinearMap(Grid& lightMap, int location)
             }
         }
 
+        //fill the map
         for (int j = 2; j < param.height - 2; j++)
         {
             for (int i = param.width / 2; i >= 2; i--)
             {
-                bool thereIsNeib = get(lightMap, i + 1, j) or get(lightMap, i - 1, j) or get(lightMap, i, j - 1);
+                bool thereIsNeib = get(lightMap, i + 1, j) || get(lightMap, i, j - 1); // || get(lightMap, i - 1, j)
 
                 if (thereIsNeib)
                 {
@@ -172,7 +177,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                     }
                     else
                     {
-                        set(lightMap, i, j, false);
+                        //set(lightMap, i, j, false);
                     }
                 }
             }
@@ -182,7 +187,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
         {
             for (int i = param.width / 2; i < param.width - 2; i++)
             {
-                bool thereIsNeib = get(lightMap, i + 1, j) || get(lightMap, i - 1, j) || get(lightMap, i, j - 1);
+                bool thereIsNeib =  get(lightMap, i - 1, j) || get(lightMap, i, j - 1); // get(lightMap, i + 1, j) ||
 
                 if (thereIsNeib)
                 {
@@ -194,7 +199,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                     }
                     else
                     {
-                        set(lightMap, i, j, false);
+                        //set(lightMap, i, j, false);
                     }
                 }
             }
@@ -202,9 +207,9 @@ void GenerateLinearMap(Grid& lightMap, int location)
     }
     else if (location == 1)
     {
-        for (int i = 1; i < param.width; i++)
+        for (int i = 0; i < param.width; i++)
         {
-            for (int j = 1; j < param.height; j++)
+            for (int j = 0; j < param.height; j++)
             {
                 P[i][j] = pstart;
             }
@@ -213,19 +218,19 @@ void GenerateLinearMap(Grid& lightMap, int location)
         float xmax = 0.937;
         float V = 40.0;
         float d = 28.0;
-        float g = 0.5;
+        float g = 0.5; // 0.5;
         float ksi = random(0, 1);
         float alpha = 2 * PI * ksi;
         float E0 = alpha * V / d;
         float Emax = g * log(exp(2 * PI * xmax * V / (d * g)) - xmax * (exp(2 * PI * xmax * V / (d * g)) - 1));
 
-        for (int j = 2; j < param.height - 2; j++)
+        for (int j = 0; j < param.height - 2; j++)
         {
             for (int i = param.width / 2; i >= 2; i--)
             {
                 bool thereIsNeib = get(lightMap, i + 1, j) || get(lightMap, i - 1, j) || get(lightMap, i, j - 1) || get(lightMap, i, j + 1);
                 
-                float z = 0.25 * (P[i + 1][j] + P[i][j + 1] + P[i - 1][j] + P[i][j - 1]);
+                float z = param.z * (P[i + 1][j] + P[i][j + 1] + P[i - 1][j] + P[i][j - 1]);
                 
                 float E = g * log(exp(E0 / g) - ksi * exp(E0 / g) - 1);
                 
@@ -240,7 +245,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                     }
                     else
                     {
-                        set(lightMap, i, j, false);
+                        //set(lightMap, i, j, false);
                     }
                 }
 
@@ -249,7 +254,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
             {
                 bool thereIsNeib = get(lightMap, i + 1, j) || get(lightMap, i - 1, j) || get(lightMap, i, j - 1) || get(lightMap, i, j + 1);
 
-                float z = 0.25 * (P[i + 1][j] + P[i][j + 1] + P[i - 1][j] + P[i][j - 1]);
+                float z = param.z * (P[i + 1][j] + P[i][j + 1] + P[i - 1][j] + P[i][j - 1]);
 
                 float E = g * log(exp(E0 / g) - ksi * exp(E0 / g) - 1);
                 
@@ -264,7 +269,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                     }
                     else
                     {
-                        set(lightMap, i, j, false);
+                        //set(lightMap, i, j, false);
                     }
                 }
 
@@ -273,7 +278,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
 
     }
     
-        //P[i][j] = (pow(pstart, param.degP) + pow(P[i - 1][j - 1], param.degP)) / 2 - 0.1;
+    //P[i][j] = (pow(pstart, param.degP) + pow(P[i - 1][j - 1], param.degP)) / 2 - 0.1;
 }
 
 
@@ -283,14 +288,14 @@ int main()
 
     Params params;
 
-    set(Lig, 3, 3, true);
-    set(Lig, params.width - 3, 3, true);
+    //set(Lig, 3, 3, true);
+    //set(Lig, params.width - 3, 3, true);
 
     int squareSize = 2;
 
-    GenerateLinearMap(Lig, 1);
-    set(Lig, 3, 3, true);
-    set(Lig, params.width - 3, 3, true);
+    GenerateLinearMap(Lig, 0);
+    //set(Lig, 3, 3, true);
+    //set(Lig, params.width - 3, 3, true);
 
     for (int i = 0; i < params.width; i++) {
         cout << " \n";

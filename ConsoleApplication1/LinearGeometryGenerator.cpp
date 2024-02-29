@@ -236,7 +236,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                 
 
                 if (thereIsNeib) {
-                    //bool dothis = ((E / Emax) >= z) || (get(lightMap, i, j));
+                    bool dothis = ((E / Emax) >= z) || (get(lightMap, i, j));
 
                     if ((E / Emax) >= z || get(lightMap, i, j))
                     {
@@ -245,7 +245,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                     }
                     else
                     {
-                        //set(lightMap, i, j, false);
+                        set(lightMap, i, j, false);
                     }
                 }
 
@@ -260,7 +260,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                 
 
                 if (thereIsNeib) {
-                    //bool dothis = ((E / Emax) >= z) || (get(lightMap, i, j));
+                    bool dothis = ((E / Emax) >= z) || (get(lightMap, i, j));
 
                     if ((E / Emax) >= z || get(lightMap, i, j))
                     {
@@ -269,7 +269,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
                     }
                     else
                     {
-                        //set(lightMap, i, j, false);
+                        set(lightMap, i, j, false);
                     }
                 }
 
@@ -278,7 +278,7 @@ void GenerateLinearMap(Grid& lightMap, int location)
 
     }
     
-    //P[i][j] = (pow(pstart, param.degP) + pow(P[i - 1][j - 1], param.degP)) / 2 - 0.1;
+    // P[i][j] = (pow(pstart, param.degP) + pow(P[i - 1][j - 1], param.degP)) / 2 - 0.1;
 }
 
 
@@ -291,7 +291,7 @@ int main()
     //set(Lig, 3, 3, true);
     //set(Lig, params.width - 3, 3, true);
 
-    int squareSize = 2;
+    int squareSize = 1;
 
     GenerateLinearMap(Lig, 0);
     //set(Lig, 3, 3, true);

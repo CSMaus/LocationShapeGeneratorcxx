@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <stdio.h>
 #include <stdlib.h>
+#define LINEAR_GEOMETRY_MAIN
 //#include "LinearGeometryGenerator.h"
 #define PI 	                (3.1415926f)
 
@@ -281,8 +282,9 @@ void GenerateLinearMap(Grid& lightMap, int location)
     // P[i][j] = (pow(pstart, param.degP) + pow(P[i - 1][j - 1], param.degP)) / 2 - 0.1;
 }
 
-
-int main()
+#ifdef LINEAR_GEOMETRY_MAIN
+//int main()
+void mainOld()
 {
     Grid Lig;
 
@@ -307,3 +309,4 @@ int main()
         }
     }
 }
+#endif

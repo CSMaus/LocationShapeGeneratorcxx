@@ -139,12 +139,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="LabyrinthMapGenerator.cpp" />
     <ClCompile Include="LinearGeometryGenerator.cpp">
       <AdditionalHeaderUnitDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </AdditionalHeaderUnitDependencies>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LabyrinthMapGenerator.h" />
     <ClInclude Include="LinearGeometryGenerator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -147,9 +147,9 @@ void printMaze(Grid& maze, int width, int height)
         for (int x = 0; x < width; x++)
         {
             if (get(maze, x, y))
-                cout << " ";
+                cout << "  ";
             else
-                cout << "#";
+                cout << "[]";
         }
         cout << "\n";
     }
@@ -160,15 +160,12 @@ int main()
 {
     srand(time(0));
 
-    int width = 31; // odd
+    int width = 21; // odd
     int height = 31; // odd
 
     Grid maze;
 
-    set(maze, 1, 0, true);
-    set(maze, (int)(width / 2), 0, true);
-    // set(maze, width - 2, height - 1, true);
-    set(maze, (int)(width/2), height - 1, true);
+    
 
 
     int mazeType = 1; //0, 1 - recursive, 2 - fractal
@@ -177,11 +174,15 @@ int main()
         generateMaze(maze, width, height);
     }
     else if (mazeType == 1) {
-
+        set(maze, 1, 0, true);
+        set(maze, (int)(width / 2), 0, true);
+        // set(maze, width - 2, height - 1, true);
+        set(maze, (int)(width / 2), height - 1, true);
         IntVector2 start(1, 1);
         recursiveMazeGenerator(maze, start, width, height);
     }
     else {
+
         fractalTessellation(maze, 0, 0, width); // width == height
     }
 

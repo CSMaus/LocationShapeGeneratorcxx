@@ -12,8 +12,6 @@
 using namespace std;
 #define M_PI 	                (3.1415926f)
 
-// typedef std::unordered_map<IntVector2, bool> Grid;
-
 struct IntVector2
 {
     int X;
@@ -249,8 +247,7 @@ void generateCurvedBranches(Grid& maze, int centerX, int centerY, int numBranche
 }
 
 
-// Calculate the dimension of the fractal (or possible fractal)
-
+// calculate the dimension of the fractal (or possible fractal)
 int countNonEmptyBoxes(const Grid& maze, int boxSize, int width, int height)
 {
     int count = 0;
@@ -310,7 +307,7 @@ double calculateFractalDimension(const Grid& maze, int width, int height)
 // generate branches which goes from top points of some figure (5 points - pentagone, 6 - hexagone, etc)
 void generateBranchesFromPoints(Grid& maze, int width, int height, int numPoints, int numBranches)
 {
-    // Calculate the inscribed figure's points
+
     std::vector<IntVector2> points;
     double angleStep = 2 * M_PI / numPoints;
     double radiusX = width / 2 - 1;
@@ -326,7 +323,6 @@ void generateBranchesFromPoints(Grid& maze, int width, int height, int numPoints
         points.emplace_back(x, y);
     }
 
-    // Generate branches from each point
     double angleStepBranch = 2 * M_PI / numBranches;
 
     for (const auto& point : points)
@@ -337,7 +333,7 @@ void generateBranchesFromPoints(Grid& maze, int width, int height, int numPoints
             double currentX = point.X;
             double currentY = point.Y;
             double branchAngle = angle;
-            double angleIncrement = angleStepBranch / 20.0; // Adjust this to change curvature
+            double angleIncrement = angleStepBranch / 10.0; //curvature
 
             while (true)
             {
@@ -349,7 +345,7 @@ void generateBranchesFromPoints(Grid& maze, int width, int height, int numPoints
 
                 if (get(maze, x, y) && std::find(points.begin(), points.end(), IntVector2(x, y)) == points.end())
                 {
-                    break; // Stop if it intersects with a branch from a different starting point
+                    break;
                 }
 
                 set(maze, x, y, true);
@@ -487,9 +483,9 @@ int main()
         generateCurvedBranches(maze, width / 2, height / 2, 5, 7, width, height); // NUM branches, NUM end_points
     }
     else if (mazeType == 6) {
-        generateBranchesFromPoints(maze, width, height, 5, 5);  // NUM points, NUM branches
-        generateBranchesFromPoints(maze, width, height, 9, 9);  // NUM points, NUM branches
-        generateBranchesFromPoints(maze, width, height, 6, 6);  // NUM points, NUM branches
+        generateBranchesFromPoints(maze, width, height, 5, 3);  // NUM points, NUM branches
+        // generateBranchesFromPoints(maze, width, height, 9, 9);  // NUM points, NUM branches
+        // generateBranchesFromPoints(maze, width, height, 6, 6);  // NUM points, NUM branches
     }
     else if (mazeType == 7) {
         int centerX = width / 2;
